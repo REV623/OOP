@@ -42,32 +42,38 @@ public class Tokenizer {
 
     private void computeNext() {
         StringBuilder s = new StringBuilder();
-        while(pos<src.length() && src.charAt(pos)==32) pos++;
-        if(pos==src.length()){
+        while(pos<src.length() && isBlank(src.charAt(pos))){
+            if(pos<src.length() && src.charAt(pos)=='#'){
+                while (pos<src.length() && src.charAt(pos)!='\n') pos++;
+            }
+            pos++;
+        }
+        if(pos>=src.length()){
             next = null;
             return;
         }
-        char c = src.charAt(pos);
-        if(isDigit(c)){
-            s.append(c);
-            for(pos++ ; pos<src.length() && isDigit(src.charAt(pos)) ; pos++)
-                s.append(src.charAt(pos));
-        }else if(isOp(c)){
-            s.append(c);
+        char current = src.charAt(pos);
+        if(isOperator(current)){
+            s.append(current);
             pos++;
         }else{
-            s.append(c);
-            for(pos++ ; pos<src.length() && !isDigit(src.charAt(pos)) && !isOp(src.charAt(pos)) && src.charAt(pos)!=32 ; pos++)
+            s.append(current);
+            for(pos++ ; pos<src.length() && !isOperator(src.charAt(pos)) && !isBlank(src.charAt(pos)) ; pos++){
                 s.append(src.charAt(pos));
+            }
         }
         next = s.toString();
     }
 
-    private boolean isDigit(char c){
-        return 48<=c && c<=57;
+    private boolean isBlank(char c){
+        return c==' ' || c=='\n' || c=='\t' || c=='#';
     }
 
-    private boolean isOp(char c){
-        return c=='+' || c=='-' || c=='*' || c=='/' || c=='%' || c=='(' || c==')';
+    private boolean isOperator(char c){
+        return c=='+' || c=='-' || c=='*' || c=='/' || c=='%' || c=='^' || c=='=' || c=='(' || c==')' || c=='{' || c=='}';
+    }
+
+    private boolean isAlphanumeric(char c){
+        return ('a'<=c && c<='z') || ('A'<=c && c<='Z') || ('0'<=c && c<='9');
     }
 }

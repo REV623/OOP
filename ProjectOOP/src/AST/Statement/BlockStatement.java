@@ -1,20 +1,18 @@
-package AST;
+package AST.Statement;
 
-import AST.Statement.*;
-import ErrorExcep.*;
+import ErrorExcep.EvalError;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-public class Plan implements Node{
+public class BlockStatement implements Statement {
     private Queue<Statement> statementQueue;
 
-    public Plan(Queue<Statement> queue) throws SyntaxError {
-        if(queue.isEmpty()) throw new SyntaxError("construction plan is empty");
+    public BlockStatement(Queue<Statement> queue){
         this.statementQueue = queue;
     }
 
-    public Plan() {
+    public BlockStatement() {
         this.statementQueue = new LinkedList<>();
     }
 
@@ -23,15 +21,19 @@ public class Plan implements Node{
     }
 
     public void prettyPrint(StringBuilder s) {
+        s.append("{");
         for (Statement statement : this.statementQueue){
-            statement.prettyPrint(s);
             s.append("\n");
+            statement.prettyPrint(s);
         }
+        if(!this.statementQueue.isEmpty()) s.append("\n");
+        s.append("}");
     }
 
-    public void eval(Map<String, Double> bindings) throws EvalError {
+    public boolean eval(Map<String, Double> bindings) throws EvalError {
         while (!this.statementQueue.isEmpty()){
-            if(!this.statementQueue.remove().eval(bindings)) return;
+            if(!this.statementQueue.remove().eval(bindings)) return false;
         }
+        return true;
     }
 }
